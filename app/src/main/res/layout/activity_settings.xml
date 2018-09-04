@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ActivitySettings">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:background="@color/aliceblue"
+        android:text="@string/settings"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/delay_time"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/EditText_settings_call_hold_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:inputType="number"
+            android:singleLine="true"
+            android:text="@string/ten"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/auto_call_next_time"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/EditText_settings_next_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:inputType="number"
+            android:singleLine="true"
+            android:text="@string/five"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/auto_call_no_phone_time"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/EditText_settings_next_get_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:inputType="number"
+            android:singleLine="true"
+            android:text="@string/sixty"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/read_url"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/EditText_settings_read_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:gravity="end"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:text="@string/read_url_net"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/write_url"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/EditText_settings_write_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:gravity="end"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:text="@string/write_url_net"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp" />
+    </LinearLayout>
+</LinearLayout>

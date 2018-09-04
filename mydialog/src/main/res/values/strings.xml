@@ -1,0 +1,10 @@
+<resources>
+    <string name="cancel">取消</string>
+    <string name="ok">确定</string>
+    <string name="title">标题</string>
+    <string name="all_day">全天</string>
+    <string name="lunar">农历</string>
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="days">日</string>
+</resources>

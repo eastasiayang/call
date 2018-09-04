@@ -1,0 +1,35 @@
+ActivityManualTest: iTime = 10
+ActivityManualTest: 开始拨打电话：10000
+ActivityManualTest: start activity
+PhoneCallReceiver: intent.getAction() = android.intent.action.PHONE_STATE
+PhoneCallReceiver: state = OFFHOOK phoneNumber = 10000
+PhoneCallReceiver: Outgoing call is started
+AudioRecorderService: isRecording = false
+AudioRecorderService: Rate16000AudioFormat2Channel Configuration16
+AudioRecorderService: AudioFormat = 2
+AudioRecorderService: Channel = 16
+AudioRecorderService: :rceordRate = 16000
+AudioRecorderService: audioRecorder = android.media.AudioRecord@6358cdd
+ActivityManualTest: end call
+PhoneCallReceiver: intent.getAction() = android.intent.action.PHONE_STATE
+PhoneCallReceiver: state = IDLE phoneNumber = 10000
+PhoneCallReceiver: Outgoing call is ended
+ActivitySettings: ASR start
+ActivityManualTest: 正在识别，请稍候
+Asr: 输入参数：{"accept-audio-volume":false,"infile":"\/sdcard\/aditi.pcm","vad":"touch"}
+AudioRecorderService: stopRecord
+AudioRecorderService: UploadFile exists
+Asr: name: asr.ready ;params :{"pid":1536,"sn":"7b784336-5b8b-45a1-84fe-8ba78aaa06fc"}
+Asr: name: asr.sn ;params :{"sn":"cuid=8D7003D313114BF4421E0A498CC8FBAB|942966330974968&sn=7b784336-5b8b-45a1-84fe-8ba78aaa06fc&nettype=4"}
+Asr: name: asr.begin
+Asr: name: asr.end ;params :{"vad_silent_start":"1535983572802"}
+Asr: name: asr.partial ;params :{"results_recognition":["中国电"],"result_type":"partial_result","best_result":"中国电","origin_result":{"corpus_no":6596999216302636766,"err_no":0,"result":{"word":["中国电"]},"sn":"7b784336-5b8b-45a1-84fe-8ba78aaa06fc"},"error":0}
+Asr: name: asr.partial ;params :{"results_recognition":["电视剧"],"result_type":"partial_result","best_result":"电视剧","origin_result":{"corpus_no":6596999216302636766,"err_no":0,"result":{"word":["电视剧"]},"sn":"7b784336-5b8b-45a1-84fe-8ba78aaa06fc"},"error":0}
+Asr: name: asr.partial ;params :{"results_recognition":["电视剧之"],"result_type":"partial_result","best_result":"电视剧之","origin_result":{"corpus_no":6596999216302636766,"err_no":0,"result":{"word":["电视剧之"]},"sn":"7b784336-5b8b-45a1-84fe-8ba78aaa06fc"},"error":0}
+Asr: name: asr.partial ;params :{"results_recognition":["电视剧的图片"],"result_type":"partial_result","best_result":"电视剧的图片","origin_result":{"corpus_no":6596999216302636766,"err_no":0,"result":{"word":["电视剧的图片"]},"sn":"7b784336-5b8b-45a1-84fe-8ba78aaa06fc"},"error":0}
+Asr: name: asr.partial ;params :{"results_recognition":["电视剧的视频"],"result_type":"final_result","best_result":"电视剧的视频","origin_result":{"corpus_no":6596999216302636766,"err_no":0,"result":{"word":["电视剧的视频"]},"sn":"7b784336-5b8b-45a1-84fe-8ba78aaa06fc","voice_energy":12845.6484375},"error":0}
+Asr: name: asr.finish ;params :{"origin_result":{"sn":"cuid=8D7003D313114BF4421E0A498CC8FBAB|942966330974968&sn=7b784336-5b8b-45a1-84fe-8ba78aaa06fc&nettype=4","error":"Speech Recognize success.","err_no":0},"error":0,"desc":"Speech Recognize success."}
+ActivityManualTest: 识别结果: ”电视剧的视频”
+ActivityManualTest: 识别结束
+Asr: name: asr.exit
+Asr: ASR_STOP
