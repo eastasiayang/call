@@ -64,13 +64,13 @@ public class PhoneCallReceiver extends BroadcastReceiver {
     protected void onIncomingCallStarted(Context context,String number){
         //Toast.makeText(context,"Incoming call is started",Toast.LENGTH_LONG).show();
         LogUtils.d(TAG, "Incoming call is started");
-        context.startService(new Intent(context,AudioRecorderService.class));
+        //context.startService(new Intent(context,AudioRecorderService.class));
     }
 
     protected void onIncomingCallEnded(Context context,String number){
         //Toast.makeText(context, "Incoming call is ended", Toast.LENGTH_LONG).show();
         LogUtils.d(TAG, "Incoming call is ended");
-        context.startService(new Intent(context, AudioRecorderService.class));
+        //context.startService(new Intent(context, AudioRecorderService.class));
     }
 
     protected void onIncomingCallReceived(Context context,String number){
@@ -84,8 +84,10 @@ public class PhoneCallReceiver extends BroadcastReceiver {
 
     protected void onOutgoingCallStarted(Context context,String number){
         //Toast.makeText(context, "Outgoing call is started", Toast.LENGTH_LONG).show();
-        LogUtils.d(TAG, "Outgoing call is started");
-        context.startService(new Intent(context, AudioRecorderService.class));
+        LogUtils.d(TAG, "Outgoing call is started, number = " + number);
+        Intent i = new Intent(context, AudioRecorderService.class);
+        i.putExtra("phone", number);
+        context.startService(i);
     }
 
     protected void onOutgoingCallEnded(Context context,String number){

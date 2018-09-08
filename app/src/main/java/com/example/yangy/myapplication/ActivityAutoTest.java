@@ -31,11 +31,13 @@ import static com.yang.basic.RegexUtils.checkDigit;
 public class ActivityAutoTest extends Activity {
     private static final String TAG = "ActivityAutoTest";
     TextView info;
-    Button start, stop;
-    boolean bStop = false;
+    Button test;
+    boolean bTesting = false;
     String info_log = "";
     private MyBroadcastReceiver myBroadcastReceiver;
     private SharedPreferencesHelper sharedPreferencesHelper;
+    CountDownTimer countDownTimer;
+    Asr asr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,36 +57,41 @@ public class ActivityAutoTest extends Activity {
         filter.addAction("StartNext");
         filter.addAction("StartRepeat");
         registerReceiver(myBroadcastReceiver, filter);
-        start.setOnClickListener(new View.OnClickListener() {
+        test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                auto_start();
-                start.setClickable(false);
-                start.setTextColor(getResources().getColor(R.color.grey));
-                stop.setClickable(true);
-                stop.setTextColor(getResources().getColor(R.color.black));
-                bStop = false;
-            }
-        });
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bStop = true;
-                stop.setClickable(false);
-                stop.setTextColor(getResources().getColor(R.color.grey));
-                start.setClickable(true);
-                start.setTextColor(getResources().getColor(R.color.black));
-                printLog("已结束自动测试", true, true);
+                if(bTesting){
+                    bTesting = false;
+                    if(countDownTimer!=null){
+                        countDownTimer.cancel();
+                    }
+                    printLog("已结束自动测试", true, true);
+                    test.setText(getResources().getString(R.string.start_auto_test));
+                }else{
+                    bTesting = true;
+                    test.setText(getResources().getString(R.string.stop_auto_test));
+                    auto_start();
+                }
             }
         });
     }
 
     private void initView() {
         info = findViewById(R.id.TextView_Auto_Info);
-        start = findViewById(R.id.Button_Auto_Start);
-        stop = findViewById(R.id.Button_Auto_Stop);
-        stop.setClickable(false);
-        stop.setTextColor(getResources().getColor(R.color.grey));
+        test = findViewById(R.id.Button_Auto_test);
+        test.setText(getResources().getString(R.string.start_auto_test));
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(myBroadcastReceiver);
+        if (asr != null) {
+            asr.cancel();
+        }
+        if(countDownTimer!=null){
+            countDownTimer.cancel();
+        }
+        super.onDestroy();
     }
 
     private void printLog(String text, boolean bAppend, boolean bClean) {
@@ -101,7 +108,6 @@ public class ActivityAutoTest extends Activity {
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
         private static final String TAG = "ActivitySettings";
-        Asr asr;
         Context m_context;
         String phone, result;
         MyBroadcastReceiver(Context con){
@@ -240,12 +246,10 @@ public class ActivityAutoTest extends Activity {
 
     private void start_wait(int total_time, int once_time){
         LogUtils.d(TAG, "total time = " + total_time + "once_time = " + once_time);
-        CountDownTimer countDownTimer = new CountDownTimer(total_time, once_time) {
+        countDownTimer = new CountDownTimer(total_time, once_time) {
             @Override
             public void onTick(long millisUntilFinished) {
-                if(bStop){
-                    cancel();
-                }else{
+                if(bTesting){
                     String value = String.valueOf((int) (millisUntilFinished / 1000));
                     printLog(value + " 秒后测试下一个电话号码", false, false);
                 }
@@ -254,7 +258,7 @@ public class ActivityAutoTest extends Activity {
             @Override
             public void onFinish() {
                 LogUtils.d(TAG, "start test next ");
-                if(!bStop){
+                if(bTesting){
                     auto_start();
                 }
             }

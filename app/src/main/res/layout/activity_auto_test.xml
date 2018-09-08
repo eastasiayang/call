@@ -14,20 +14,12 @@
         android:textSize="18sp"
         android:text="@string/auto_test"/>
     <Button
-        android:id="@+id/Button_Auto_Start"
+        android:id="@+id/Button_Auto_test"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:text="@string/start_auto_test" />
-
-    <Button
-        android:id="@+id/Button_Auto_Stop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="@string/stop_auto_test" />
 
     <View
         android:layout_width="match_parent"

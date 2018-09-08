@@ -22,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+
 /**
  * Created by hgx on 2016/6/13.
  */
@@ -38,6 +40,8 @@ public class AudioRecorderService extends Service {
     private static int[] recordRate ={44100 , 22050 , 11025 , 8000};
     int bufferSize = 0;
     File uploadFile;
+    String phone_number;
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
@@ -56,6 +60,8 @@ public class AudioRecorderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtils.d(TAG, "isRecording = " + isRecording);
+        phone_number = intent.getStringExtra("phone");
+        LogUtils.d(TAG, "phone = " + phone_number);
         if (!isRecording){
             startRecord();
         }else {
@@ -123,7 +129,9 @@ public class AudioRecorderService extends Service {
     }
     //Create file to convert to .wav format
     private File createWavFile() {
-        File wavFile = new File(Environment.getExternalStorageDirectory(), "aditi_" + System.currentTimeMillis() + ".wav");
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String dateStr = dateformat.format(System.currentTimeMillis());
+        File wavFile = new File(Environment.getExternalStorageDirectory(), phone_number + "_" + dateStr + ".wav");
         return wavFile;
     }
     /*
