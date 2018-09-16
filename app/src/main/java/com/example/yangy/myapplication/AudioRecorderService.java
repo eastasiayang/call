@@ -37,7 +37,7 @@ public class AudioRecorderService extends Service {
     private Thread recordT = null;
     private Boolean isRecording = false;
     private int bufferEle = 1024, bytesPerEle = 2;// want to play 2048 (2K) since 2 bytes we use only 1024 2 bytes in 16bit format
-    private static int[] recordRate ={44100 , 22050 , 11025 , 8000};
+    private static int[] recordRate = {44100, 22050, 11025, 8000};
     int bufferSize = 0;
     File uploadFile;
     String phone_number;
@@ -48,34 +48,37 @@ public class AudioRecorderService extends Service {
         //maintain the relationship between the caller activity and the callee service, currently useless here
         return null;
     }
+
     @Override
     public void onDestroy() {
-        if (isRecording){
+        if (isRecording) {
             stopRecord();
-        }else{
+        } else {
             //Toast.makeText(getContext(), "Recording is already stopped",Toast.LENGTH_SHORT).show();
         }
         super.onDestroy();
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtils.d(TAG, "isRecording = " + isRecording);
         phone_number = intent.getStringExtra("phone");
         LogUtils.d(TAG, "phone = " + phone_number);
-        if (!isRecording){
+        if (!isRecording) {
             startRecord();
-        }else {
+        } else {
             //Toast.makeText(getContext(), "Recording is already started",Toast.LENGTH_SHORT).show();
         }
         return 1;
     }
-    private void startRecord(){
+
+    private void startRecord() {
         audioRecorder = initializeRecord();
         LogUtils.d(TAG, "audioRecorder = " + audioRecorder);
-        if (audioRecorder != null){
+        if (audioRecorder != null) {
             //Toast.makeText(MyApplication.getContext(), "Recording is started",Toast.LENGTH_SHORT).show();
             audioRecorder.startRecording();
-        }else
+        } else
             return;
         isRecording = true;
         recordT = new Thread(new Runnable() {
@@ -83,20 +86,21 @@ public class AudioRecorderService extends Service {
             public void run() {
                 writeToFile();
             }
-        },"Recording Thread");
+        }, "Recording Thread");
         recordT.start();
     }
-    private void writeToFile(){
+
+    private void writeToFile() {
         byte bDate[] = new byte[bufferEle];
-        FileOutputStream fos =null;
+        FileOutputStream fos = null;
         File recordFile = createTempFile();
         try {
             fos = new FileOutputStream(recordFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        while (isRecording){
-            int bufferReadResult = audioRecorder.read(bDate,0,bufferEle);
+        while (isRecording) {
+            int bufferReadResult = audioRecorder.read(bDate, 0, bufferEle);
             //LogUtils.d(TAG, "bufferReadResult = " + bufferReadResult);
             try {
                 fos.write(bDate);
@@ -111,6 +115,7 @@ public class AudioRecorderService extends Service {
             e.printStackTrace();
         }
     }
+
     //Following function converts short data to byte data
     private byte[] writeShortToByte(short[] sData) {
         int size = sData.length;
@@ -122,11 +127,13 @@ public class AudioRecorderService extends Service {
         }
         return byteArrayData;
     }
+
     //Creates temporary .raw file for recording
     private File createTempFile() {
         File tempFile = new File(Environment.getExternalStorageDirectory(), "aditi.pcm");
         return tempFile;
     }
+
     //Create file to convert to .wav format
     private File createWavFile() {
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -134,6 +141,7 @@ public class AudioRecorderService extends Service {
         File wavFile = new File(Environment.getExternalStorageDirectory(), phone_number + "_" + dateStr + ".wav");
         return wavFile;
     }
+
     /*
      * Convert raw to wav file
      * @param java.io.File temporay raw file
@@ -162,13 +170,14 @@ public class AudioRecorderService extends Service {
             }
             uploadFile = wavFile.getAbsoluteFile();
         } catch (FileNotFoundException e) {
-            LogUtils.e(TAG,e.getMessage());
+            LogUtils.e(TAG, e.getMessage());
         } catch (IOException e) {
-            LogUtils.e(TAG,e.getMessage());
+            LogUtils.e(TAG, e.getMessage());
         } catch (Exception e) {
-            LogUtils.e(TAG,e.getMessage());
+            LogUtils.e(TAG, e.getMessage());
         }
     }
+
     /*
      * To create wav file need to create header for the same
      *
@@ -230,9 +239,10 @@ public class AudioRecorderService extends Service {
             fos.write(header, 0, 44);
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            LogUtils.e(TAG,e.getMessage());
+            LogUtils.e(TAG, e.getMessage());
         }
     }
+
     /*
      * delete created temperory file
      * @param
@@ -242,6 +252,7 @@ public class AudioRecorderService extends Service {
         File file = createTempFile();
         file.delete();
     }
+
     /*
      * Initialize audio record
      *
@@ -249,34 +260,27 @@ public class AudioRecorderService extends Service {
      * @return android.media.AudioRecord
      */
     private AudioRecord initializeRecord() {
-        short[] audioFormat = new short[]{AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_PCM_8BIT};
-        short[] channelConfiguration = new short[]{AudioFormat.CHANNEL_IN_MONO, AudioFormat.CHANNEL_IN_STEREO};
-        //for (int rate : recordRate) {
         int rate = 16000;
-            for (short aFormat : audioFormat) {
-                for (short cConf : channelConfiguration) {
-                    LogUtils.d(TAG,"Rate"+rate+"AudioFormat"+aFormat+"Channel Configuration"+cConf);
-                    try {
-                        int buffSize = AudioRecord.getMinBufferSize(rate, cConf, aFormat);
-                        bufferSize = buffSize;
-                        if (buffSize != AudioRecord.ERROR_BAD_VALUE) {
-                            AudioRecord aRecorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, rate, cConf, aFormat, buffSize);
-                            if (aRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
-                                RECORD_RATE = rate;
-                                LogUtils.d(TAG, "AudioFormat = " + String.valueOf(aFormat));
-                                LogUtils.d(TAG, "Channel = " + String.valueOf(cConf));
-                                LogUtils.d(TAG, ":rceordRate = " + String.valueOf(rate));
-                                return aRecorder;
-                            }
-                        }
-                    } catch (Exception e) {
-                        LogUtils.e(TAG,e.getMessage());
-                    }
+        short aFormat = AudioFormat.ENCODING_PCM_16BIT;
+        short cConf = AudioFormat.CHANNEL_IN_STEREO;
+        LogUtils.d(TAG, "Rate = " + rate + " AudioFormat = " + aFormat
+                + " Channel Configuration = " + cConf);
+        try {
+            int buffSize = AudioRecord.getMinBufferSize(rate, cConf, aFormat);
+            bufferSize = buffSize;
+            if (buffSize != AudioRecord.ERROR_BAD_VALUE) {
+                AudioRecord aRecorder = new AudioRecord(MediaRecorder.AudioSource.REMOTE_SUBMIX, rate, cConf, aFormat, buffSize);
+                if (aRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
+                    RECORD_RATE = rate;
+                    return aRecorder;
                 }
             }
-        //}
+        } catch (Exception e) {
+            LogUtils.e(TAG, e.getMessage());
+        }
         return null;
     }
+
     /*
      * Method to stop and release audio record
      *
