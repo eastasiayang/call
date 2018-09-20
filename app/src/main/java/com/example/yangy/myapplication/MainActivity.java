@@ -2,7 +2,9 @@ package com.example.yangy.myapplication;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -10,17 +12,24 @@ import android.support.v4.content.ContextCompat;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.yang.basic.LogUtils;
+
 import java.util.ArrayList;
 
 public class MainActivity extends Activity implements View.OnClickListener  {
-    //private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
     Button AutoTest, manual, settings;
+    TextView version;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        version.setText(getVersionName(this));
+        LogUtils.d(TAG, getVersionName(this));
         initPermission();
     }
 
@@ -28,6 +37,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         AutoTest = findViewById(R.id.Button_Main_Auto);
         manual = findViewById(R.id.Button_Main_Manual);
         settings = findViewById(R.id.Button_Main_Settings);
+        version = findViewById(R.id.TextView_Main_version);
 
         AutoTest.setOnClickListener(this);
         manual.setOnClickListener(this);
@@ -56,6 +66,29 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         }
     }
 
+    //版本名
+    public static String getVersionName(Context context) {
+        return "版本号：" + getPackageInfo(context).versionName;
+    }
+    //版本号
+    public static int getVersionCode(Context context) {
+        return getPackageInfo(context).versionCode;
+    }
+
+    private static PackageInfo getPackageInfo(Context context) {
+        PackageInfo pi = null;
+        try {
+            PackageManager pm = context.getPackageManager();
+            pi = pm.getPackageInfo(context.getPackageName(),
+                    PackageManager.GET_CONFIGURATIONS);
+
+            return pi;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pi;
+    }
+
     /**
      * android 6.0 以上需要动态申请权限
      */
@@ -64,7 +97,9 @@ public class MainActivity extends Activity implements View.OnClickListener  {
                 Manifest.permission.ACCESS_NETWORK_STATE,
                 Manifest.permission.INTERNET,
                 Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CALL_PHONE
+
         };
         ArrayList<String> toApplyList = new ArrayList<String>();
         for (String perm : permissions) {

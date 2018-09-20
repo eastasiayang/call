@@ -262,14 +262,14 @@ public class AudioRecorderService extends Service {
     private AudioRecord initializeRecord() {
         int rate = 16000;
         short aFormat = AudioFormat.ENCODING_PCM_16BIT;
-        short cConf = AudioFormat.CHANNEL_IN_STEREO;
+        short cConf = AudioFormat.CHANNEL_IN_MONO;
         LogUtils.d(TAG, "Rate = " + rate + " AudioFormat = " + aFormat
                 + " Channel Configuration = " + cConf);
         try {
             int buffSize = AudioRecord.getMinBufferSize(rate, cConf, aFormat);
             bufferSize = buffSize;
-            if (buffSize != AudioRecord.ERROR_BAD_VALUE) {
-                AudioRecord aRecorder = new AudioRecord(MediaRecorder.AudioSource.REMOTE_SUBMIX, rate, cConf, aFormat, buffSize);
+            if (buffSize != AudioRecord.ERROR_BAD_VALUE) {//
+                AudioRecord aRecorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, rate, cConf, aFormat, buffSize);
                 if (aRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
                     RECORD_RATE = rate;
                     return aRecorder;

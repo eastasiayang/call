@@ -7,12 +7,15 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class LogUtils {
 
     private static final boolean DEBUG = true;
 
     private static final String TAG = "yangyadong";
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.US);//日期格式;
 
     public static void WriteToFile(String content) {
         String state= Environment.getExternalStorageState();
@@ -34,28 +37,28 @@ public class LogUtils {
 
     public static void v(String tag, String msg) {
         if (DEBUG) {
-            WriteToFile(tag + ": " + msg + "\n");
+            WriteToFile(dateFormat.format(System.currentTimeMillis())  + " " + tag + ": " + msg + "\n");
             Log.v(TAG, "[" + tag + "] " + msg);
         }
     }
 
     public static void i(String tag, String msg) {
         if (DEBUG) {
-            WriteToFile(tag + ": " + msg + "\n");
+            WriteToFile(dateFormat.format(System.currentTimeMillis())  + " " + tag + ": " + msg + "\n");
             Log.i(TAG, "[" + tag + "] " + msg);
         }
     }
 
     public static void d(String tag, String msg) {
         if (DEBUG) {
-            WriteToFile(tag + ": " + msg + "\n");
+            WriteToFile(dateFormat.format(System.currentTimeMillis())  + " " + tag + ": " + msg + "\n");
             Log.d(TAG, "[" + tag + "] " + msg);
         }
     }
 
     public static void w(String tag, String msg) {
         if (DEBUG) {
-            WriteToFile(tag + ": " + msg + "\n");
+            WriteToFile(dateFormat.format(System.currentTimeMillis())  + " " + tag + ": " + msg + "\n");
             Log.w(TAG, "[" + tag + "] " + msg);
         }
     }
@@ -63,7 +66,7 @@ public class LogUtils {
 
     public static void e(String tag, String msg) {
         if (DEBUG) {
-            WriteToFile(tag + ": " + msg + "\n");
+            WriteToFile(dateFormat.format(System.currentTimeMillis())  + " " + tag + ": " + msg + "\n");
             Log.e(TAG, "[" + tag + "] " + msg);
         }
     }

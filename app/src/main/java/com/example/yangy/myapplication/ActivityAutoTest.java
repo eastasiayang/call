@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -38,6 +39,7 @@ public class ActivityAutoTest extends Activity {
     private SharedPreferencesHelper sharedPreferencesHelper;
     CountDownTimer countDownTimer;
     Asr asr;
+    NetWorkStateReceiver netWorkStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +55,11 @@ public class ActivityAutoTest extends Activity {
         filter.addAction("AsrStart");
         filter.addAction("StartCall");
         filter.addAction("AsrFinish");
-        filter.addAction("UpdateUI");
+        filter.addAction("Test_Failed");
         filter.addAction("StartNext");
         filter.addAction("StartRepeat");
+        filter.addAction("NetWork_Disabled");
+        filter.addAction("NetWork_Enabled");
         registerReceiver(myBroadcastReceiver, filter);
         test.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,9 +85,20 @@ public class ActivityAutoTest extends Activity {
         test = findViewById(R.id.Button_Auto_test);
         test.setText(getResources().getString(R.string.start_auto_test));
     }
+    @Override
+    protected void onResume() {
+        if (netWorkStateReceiver == null) {
+            netWorkStateReceiver = new NetWorkStateReceiver();
+        }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(netWorkStateReceiver, filter);
+        super.onResume();
+    }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        unregisterReceiver(netWorkStateReceiver);
         unregisterReceiver(myBroadcastReceiver);
         if (asr != null) {
             asr.cancel();
@@ -91,7 +106,7 @@ public class ActivityAutoTest extends Activity {
         if(countDownTimer!=null){
             countDownTimer.cancel();
         }
-        super.onDestroy();
+        super.onPause();
     }
 
     private void printLog(String text, boolean bAppend, boolean bClean) {
@@ -107,7 +122,6 @@ public class ActivityAutoTest extends Activity {
     }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
-        private static final String TAG = "ActivitySettings";
         Context m_context;
         String phone, result;
         MyBroadcastReceiver(Context con){
@@ -130,27 +144,47 @@ public class ActivityAutoTest extends Activity {
                 printLog("识别结果: ”" + result + "”", true, false);
                 printLog("识别结束", true, false);
                 SendResult(phone, result);
-            }else if(intent.getAction().equals("UpdateUI")){
+            }else if(intent.getAction().equals("Test_Failed")){
+                String temp = intent.getStringExtra("log");
+                printLog(temp, true, true);
+                int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_get_info", "60").toString().trim());
+                start_wait(iTime*1000, 1000);
+            }else if(intent.getAction().equals("StartNext")){
                 String temp = intent.getStringExtra("log");
                 printLog(temp, true, false);
-            }else if(intent.getAction().equals("StartNext")){
                 int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_phone_time", "5").toString().trim());
                 start_wait(iTime*1000, 1000);
             }
             else if(intent.getAction().equals("StartRepeat")){
-                printLog("没有读到电话号码", true, true);
+                String temp = intent.getStringExtra("log");
+                printLog(temp, true, true);
                 int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_get_info", "60").toString().trim());
                 start_wait(iTime*1000, 1000);
+            }else if(intent.getAction().equals("NetWork_Disabled")){
+                printLog("网络故障，请检查网络连接！", true, true);
+                test.setTextColor(getResources().getColor(R.color.grey));
+                test.setEnabled(false);
+                if(countDownTimer!=null){
+                    countDownTimer.cancel();
+                    countDownTimer = null;
+                }
+                if (asr != null) {
+                    asr.cancel();
+                    asr = null;
+                }
+            }else if(intent.getAction().equals("NetWork_Enabled")){
+                printLog("", true, true);
+                test.setTextColor(getResources().getColor(R.color.black));
+                test.setEnabled(true);
+                if(bTesting){
+                    int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_phone_time", "5").toString().trim());
+                    start_wait(iTime*1000, 1000);
+                }
             }
         }
     }
 
     private void auto_start(){
-        if (!NetworkUtil.isNetworkAvailable(ActivityAutoTest.this)) {
-            ToastUtils.showShort(ActivityAutoTest.this,
-                    R.string.tip_network_error_please_check);
-            return;
-        }
         String url = sharedPreferencesHelper.getSharedPreference("read_url", "http://1.192.125.57/zx/mobile_read.aspx").toString().trim();
         HttpRequest.requestNetwork(url, "", new
                 HttpRequestListener() {
@@ -163,17 +197,18 @@ public class ActivityAutoTest extends Activity {
                             sendBroadcast(mIntent);
                         }else{
                             Intent mIntent=new Intent("StartRepeat");
+                            mIntent.putExtra("log", "没有读到电话号码");
                             sendBroadcast(mIntent);
                         }
                     }
                     @Override
                     public void onErrorResponse(String error) {
-                        printLog("服务器读号码故障，故障代码：" + error, false, false );
+                        Intent mIntent=new Intent("Test_Failed");
+                        mIntent.putExtra("log", "服务器读号码故障，故障代码：" + error);
+                        sendBroadcast(mIntent);
                     }
                 });
     }
-
-
 
     private void call(String sPhone) {
         int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("hold_time", "10").toString().trim());
@@ -222,22 +257,20 @@ public class ActivityAutoTest extends Activity {
                     @Override
                     public void onResponse(String result) {
                         LogUtils.d(TAG, "result = " + result);
-                        Intent mIntent=new Intent("UpdateUI");
-                        mIntent.putExtra("log", "返回结果：" + result);
-                        sendBroadcast(mIntent);
                         if (result.equals("成功")) {
-                            mIntent=new Intent("StartNext");
+                            Intent mIntent=new Intent("StartNext");
+                            mIntent.putExtra("log", "服务器写成功");
                             sendBroadcast(mIntent);
                         }else{
-                            mIntent=new Intent("UpdateUI");
-                            mIntent.putExtra("log", "服务器写失败，请检查服务器");
+                            Intent mIntent=new Intent("Test_Failed");
+                            mIntent.putExtra("log", "服务器写失败，返回值：" + result);
                             sendBroadcast(mIntent);
                         }
                     }
                     @Override
                     public void onErrorResponse(String error) {
-                        Intent mIntent=new Intent("UpdateUI");
-                        mIntent.putExtra("log", "服务器写结果故障，故障代码：" + error);
+                        Intent mIntent=new Intent("Test_Failed");
+                        mIntent.putExtra("log", "服务器写故障，故障代码：" + error);
                         sendBroadcast(mIntent);
                     }
                 });
@@ -246,6 +279,14 @@ public class ActivityAutoTest extends Activity {
 
     private void start_wait(int total_time, int once_time){
         LogUtils.d(TAG, "total time = " + total_time + "once_time = " + once_time);
+        if(countDownTimer!=null){
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+        if (asr != null) {
+            asr.cancel();
+            asr = null;
+        }
         countDownTimer = new CountDownTimer(total_time, once_time) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -253,7 +294,6 @@ public class ActivityAutoTest extends Activity {
                     String value = String.valueOf((int) (millisUntilFinished / 1000));
                     printLog(value + " 秒后测试下一个电话号码", false, false);
                 }
-
             }
             @Override
             public void onFinish() {
@@ -265,6 +305,4 @@ public class ActivityAutoTest extends Activity {
         };
         countDownTimer.start();
     }
-
-
 }

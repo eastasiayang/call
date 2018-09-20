@@ -71,7 +71,6 @@ public class ActivityManualTest extends Activity {
     }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
-        private static final String TAG = "ActivitySettings";
         Context m_context;
 
         MyBroadcastReceiver(Context con){

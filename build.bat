@@ -1,0 +1,1 @@
+java -jar ..\sign\TCL-platform_sign\signapk.jar ..\sign\TCL-platform_sign\platform.x509.pem ..\sign\TCL-platform_sign\platform.pk8 .\app\build\outputs\apk\debug\app-debug.apk tcl_signed.apk

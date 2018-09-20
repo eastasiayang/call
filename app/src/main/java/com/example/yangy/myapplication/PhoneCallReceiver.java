@@ -17,6 +17,7 @@ public class PhoneCallReceiver extends BroadcastReceiver {
     private int lastCallState = TelephonyManager.CALL_STATE_IDLE;
     private boolean isIncoming = false;
     private static String contactNum;
+    private static boolean isCalling = false;
     Intent audioRecorderService;
     public PhoneCallReceiver() {
     }
@@ -39,7 +40,10 @@ public class PhoneCallReceiver extends BroadcastReceiver {
                 if (isIncoming){
                     onIncomingCallEnded(context,phoneNumber);
                 }else {
-                    onOutgoingCallEnded(context,phoneNumber);
+                    if(isCalling){
+                        onOutgoingCallEnded(context,phoneNumber);
+                    }
+                    isCalling = false;
                 }
             }else if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
                 //摘机状态
@@ -47,7 +51,10 @@ public class PhoneCallReceiver extends BroadcastReceiver {
                 if (lastCallState != TelephonyManager.CALL_STATE_RINGING){
                     //如果最近的状态不是来电响铃的话，意味着本次通话是去电
                     isIncoming =false;
-                    onOutgoingCallStarted(context,phoneNumber);
+                    if(!isCalling){
+                        isCalling = true;
+                        onOutgoingCallStarted(context,phoneNumber);
+                    }
                 }else {
                     //否则本次通话是来电
                     isIncoming = true;
