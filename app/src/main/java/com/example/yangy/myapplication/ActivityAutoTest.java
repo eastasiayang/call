@@ -61,6 +61,10 @@ public class ActivityAutoTest extends Activity {
         filter.addAction("NetWork_Disabled");
         filter.addAction("NetWork_Enabled");
         registerReceiver(myBroadcastReceiver, filter);
+        netWorkStateReceiver = new NetWorkStateReceiver();
+        filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(netWorkStateReceiver, filter);
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,17 +91,16 @@ public class ActivityAutoTest extends Activity {
     }
     @Override
     protected void onResume() {
-        if (netWorkStateReceiver == null) {
-            netWorkStateReceiver = new NetWorkStateReceiver();
-        }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(netWorkStateReceiver, filter);
         super.onResume();
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy(){
         unregisterReceiver(netWorkStateReceiver);
         unregisterReceiver(myBroadcastReceiver);
         if (asr != null) {
@@ -106,8 +109,9 @@ public class ActivityAutoTest extends Activity {
         if(countDownTimer!=null){
             countDownTimer.cancel();
         }
-        super.onPause();
+        super.onDestroy();
     }
+
 
     private void printLog(String text, boolean bAppend, boolean bClean) {
         LogUtils.d(TAG, text);
