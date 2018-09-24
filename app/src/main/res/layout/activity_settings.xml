@@ -17,7 +17,8 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -28,12 +29,11 @@
 
         <EditText
             android:id="@+id/EditText_settings_call_hold_time"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:gravity="end"
+            android:gravity="center"
             android:inputType="number"
             android:singleLine="true"
             android:text="@string/ten"
@@ -44,7 +44,8 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -71,7 +72,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
@@ -82,12 +83,11 @@
 
         <EditText
             android:id="@+id/EditText_settings_next_get_info"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:gravity="end"
+            android:gravity="center"
             android:inputType="number"
             android:singleLine="true"
             android:text="@string/sixty"

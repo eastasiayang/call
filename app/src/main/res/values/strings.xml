@@ -12,8 +12,8 @@
     <string name="auto_test">自动测试</string>
     <string name="manual_test">手动测试</string>
     <string name="settings">设置</string>
-    <string name="auto_call_next_time">自动拨打下一个电话间隔时间(秒)</string>
-    <string name="auto_call_no_phone_time">自动拨打无信息时下次读取时间(秒)</string>
+    <string name="auto_call_next_time">自动拨打下一个电话时间(秒)</string>
+    <string name="auto_call_no_phone_time">无法从服务器读到数据时下次读取时间(秒)</string>
     <string name="read_url">读数据网址</string>
     <string name="write_url">写数据网址</string>
     <string name="read_url_net">http://1.192.125.57/zx/mobile_read.aspx</string>
