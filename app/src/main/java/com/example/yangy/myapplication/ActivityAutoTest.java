@@ -139,15 +139,22 @@ public class ActivityAutoTest extends Activity {
                     asr = new Asr(m_context);
                 }
                 printLog("正在识别，请稍候", true, false);
+                new Handler().postDelayed(new Runnable(){
+                    @Override
+                    public void run() {
                 asr.start();
+                   }
+                }, 5000);
             } else if (intent.getAction().equals("StartCall")) {
                 phone = intent.getStringExtra("phone");
                 call(phone);
             } else if (intent.getAction().equals("AsrFinish")) {
                 result = intent.getStringExtra("result");
-                printLog("识别结果: ”" + result + "”", true, false);
-                printLog("识别结束", true, false);
-                SendResult(phone, result);
+                if(bTesting){
+                    printLog("识别结果: ”" + result + "”", true, false);
+                    printLog("识别结束", true, false);
+                    SendResult(phone, result);
+                }
             }else if(intent.getAction().equals("Test_Failed")){
                 String temp = intent.getStringExtra("log");
                 printLog(temp, true, true);
@@ -156,8 +163,9 @@ public class ActivityAutoTest extends Activity {
             }else if(intent.getAction().equals("StartNext")){
                 String temp = intent.getStringExtra("log");
                 printLog(temp, true, false);
-                int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_phone_time", "5").toString().trim());
-                start_wait(iTime*1000, 1000);
+                if(bTesting){
+                    auto_start();
+                }
             }
             else if(intent.getAction().equals("StartRepeat")){
                 String temp = intent.getStringExtra("log");
@@ -195,6 +203,7 @@ public class ActivityAutoTest extends Activity {
                     @Override
                     public void onResponse(String result) {
                         LogUtils.d(TAG, "result = " + result);
+                        //result = String.valueOf(10000);
                         if(!result.equals("")){
                             Intent mIntent=new Intent("StartCall");
                             mIntent.putExtra("phone", result);
