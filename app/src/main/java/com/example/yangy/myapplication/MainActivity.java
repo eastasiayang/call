@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,7 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         setContentView(R.layout.activity_main);
         initView();
         version.setText(getVersionName(this));
-        LogUtils.d(TAG, getVersionName(this));
+        Log.d(TAG, getVersionName(this));
         initPermission();
     }
 
@@ -88,6 +89,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         }
         return pi;
     }
+
 
     /**
      * android 6.0 以上需要动态申请权限

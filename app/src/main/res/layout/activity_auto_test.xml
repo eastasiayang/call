@@ -33,6 +33,7 @@
             android:id="@+id/TextView_Auto_Info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:textSize="12sp" />
     </ScrollView>
 

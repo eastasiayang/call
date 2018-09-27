@@ -30,7 +30,7 @@ public class LogUtils {
                 fos.close();
             }
             catch(Exception e){
-                LogUtils.d(TAG, "file write error");
+                Log.d(TAG, "file write error " + e.toString());
             }
         }
     }
