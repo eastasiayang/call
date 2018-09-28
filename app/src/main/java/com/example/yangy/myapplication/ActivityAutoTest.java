@@ -34,6 +34,8 @@ public class ActivityAutoTest extends Activity {
     TextView info;
     Button test;
     boolean bTesting = false;
+    boolean bCalling = false;
+    boolean bNetState = true;
     String info_log = "";
     private MyBroadcastReceiver myBroadcastReceiver;
     private SharedPreferencesHelper sharedPreferencesHelper;
@@ -77,6 +79,7 @@ public class ActivityAutoTest extends Activity {
                     test.setText(getResources().getString(R.string.start_auto_test));
                 }else{
                     bTesting = true;
+                    printLog("开始自动测试", true, true);
                     test.setText(getResources().getString(R.string.stop_auto_test));
                     auto_start();
                 }
@@ -101,6 +104,7 @@ public class ActivityAutoTest extends Activity {
 
     @Override
     protected void onDestroy(){
+        LogUtils.d(TAG, "onDestroy");
         unregisterReceiver(netWorkStateReceiver);
         unregisterReceiver(myBroadcastReceiver);
         if (asr != null) {
@@ -158,13 +162,20 @@ public class ActivityAutoTest extends Activity {
             }else if(intent.getAction().equals("Test_Failed")){
                 String temp = intent.getStringExtra("log");
                 printLog(temp, true, true);
-                int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_get_info", "60").toString().trim());
-                start_wait(iTime*1000, 1000);
+                if (!NetworkUtil.isNetworkAvailable(context)) {
+                    LogUtils.d(TAG, "NetWork_Disabled");
+                    Intent mIntent=new Intent("NetWork_Disabled");
+                    context.sendBroadcast(mIntent);
+                }else{
+                    int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_get_info", "60").toString().trim());
+                    start_wait(iTime*1000, 1000);
+                }
             }else if(intent.getAction().equals("StartNext")){
                 String temp = intent.getStringExtra("log");
                 printLog(temp, true, false);
                 if(bTesting){
-                    auto_start();
+                    int iTime = 5;//Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_phone_time", "5").toString().trim());
+                    start_wait(iTime*1000, 1000);
                 }
             }
             else if(intent.getAction().equals("StartRepeat")){
@@ -173,24 +184,30 @@ public class ActivityAutoTest extends Activity {
                 int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_get_info", "60").toString().trim());
                 start_wait(iTime*1000, 1000);
             }else if(intent.getAction().equals("NetWork_Disabled")){
-                printLog("网络故障，请检查网络连接！", true, true);
-                test.setTextColor(getResources().getColor(R.color.grey));
-                test.setEnabled(false);
-                if(countDownTimer!=null){
-                    countDownTimer.cancel();
-                    countDownTimer = null;
-                }
-                if (asr != null) {
-                    asr.cancel();
-                    asr = null;
+                if(!bCalling){
+                    printLog("网络故障，请检查网络连接！", true, true);
+                    bNetState = false;
+                    test.setTextColor(getResources().getColor(R.color.grey));
+                    test.setEnabled(false);
+                    if(countDownTimer!=null){
+                        countDownTimer.cancel();
+                        countDownTimer = null;
+                    }
+                    if (asr != null) {
+                        asr.cancel();
+                        asr = null;
+                    }
                 }
             }else if(intent.getAction().equals("NetWork_Enabled")){
-                printLog("", true, true);
-                test.setTextColor(getResources().getColor(R.color.black));
-                test.setEnabled(true);
-                if(bTesting){
-                    int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_phone_time", "5").toString().trim());
-                    start_wait(iTime*1000, 1000);
+                if(!bNetState){
+                    bNetState = true;
+                    printLog("网络已恢复", true, true);
+                    test.setTextColor(getResources().getColor(R.color.black));
+                    test.setEnabled(true);
+                    if(bTesting){
+                        int iTime = Integer.parseInt(sharedPreferencesHelper.getSharedPreference("next_phone_time", "5").toString().trim());
+                        start_wait(iTime*1000, 1000);
+                    }
                 }
             }
         }
@@ -229,6 +246,7 @@ public class ActivityAutoTest extends Activity {
         if (!checkDigit(sPhone)) {
             printLog("无效的电话号码：" + sPhone, true, true);
         } else {
+            bCalling = true;
             printLog("开始拨打电话：" + sPhone, true, true);
             Intent phoneIntent = new Intent(
                     "android.intent.action.CALL", Uri.parse("tel:"
@@ -248,6 +266,7 @@ public class ActivityAutoTest extends Activity {
                         mt.setAccessible(true);
                         mt.invoke(obj);
                         LogUtils.d(TAG, "end call");
+                        bCalling = false;
                         //Toast.makeText(MainActivity.this, "挂断电话！", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         LogUtils.d(TAG, "e = " + e.toString());
@@ -291,7 +310,7 @@ public class ActivityAutoTest extends Activity {
     }
 
     private void start_wait(int total_time, int once_time){
-        LogUtils.d(TAG, "total time = " + total_time + "once_time = " + once_time);
+        LogUtils.d(TAG, "total time = " + total_time + " once_time = " + once_time);
         if(countDownTimer!=null){
             countDownTimer.cancel();
             countDownTimer = null;
