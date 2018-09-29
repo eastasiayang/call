@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.yang.basic.LogUtils;
 import com.yang.basic.SharedPreferencesHelper;
 import com.yang.basic.ToastUtils;
+import com.yang.mydialog.MyAlertDialog;
 import com.yang.network.HttpRequest;
 import com.yang.network.HttpRequestListener;
 import com.yang.network.NetworkUtil;
@@ -42,7 +43,7 @@ public class ActivityAutoTest extends Activity {
     CountDownTimer countDownTimer;
     Asr asr;
     NetWorkStateReceiver netWorkStateReceiver;
-
+    MyAlertDialog m_Alert_Dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,36 +53,24 @@ public class ActivityAutoTest extends Activity {
         initView();
         sharedPreferencesHelper = new SharedPreferencesHelper(
                 ActivityAutoTest.this, "settings");
-        myBroadcastReceiver = new MyBroadcastReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("AsrStart");
-        filter.addAction("StartCall");
-        filter.addAction("AsrFinish");
-        filter.addAction("Test_Failed");
-        filter.addAction("StartNext");
-        filter.addAction("StartRepeat");
-        filter.addAction("NetWork_Disabled");
-        filter.addAction("NetWork_Enabled");
-        registerReceiver(myBroadcastReceiver, filter);
-        netWorkStateReceiver = new NetWorkStateReceiver();
-        filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(netWorkStateReceiver, filter);
+        startTest();//进入自动进行测试
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(bTesting){
-                    bTesting = false;
-                    if(countDownTimer!=null){
-                        countDownTimer.cancel();
-                    }
-                    printLog("已结束自动测试", true, true);
-                    test.setText(getResources().getString(R.string.start_auto_test));
+                    m_Alert_Dialog = new MyAlertDialog(ActivityAutoTest.this,
+                            new MyAlertDialog.ResultHandler() {
+                                @Override
+                                public void handle(boolean bOK) {
+                                    if (bOK) {
+                                        exitTest();
+                                    }
+                                }
+                            });
+                    m_Alert_Dialog.setTitle("确定要退出自动测试吗?");
+                    m_Alert_Dialog.show();
                 }else{
-                    bTesting = true;
-                    printLog("开始自动测试", true, true);
-                    test.setText(getResources().getString(R.string.stop_auto_test));
-                    auto_start();
+                    startTest();
                 }
             }
         });
@@ -94,26 +83,77 @@ public class ActivityAutoTest extends Activity {
     }
     @Override
     protected void onResume() {
+        LogUtils.d(TAG, "onResume");
+        if(!bCalling){
+            startTest();
+        }
         super.onResume();
     }
 
     @Override
     protected void onPause() {
+        LogUtils.d(TAG, "onPause");
+        if(!bCalling){
+            exitTest();
+        }
         super.onPause();
     }
 
     @Override
     protected void onDestroy(){
         LogUtils.d(TAG, "onDestroy");
-        unregisterReceiver(netWorkStateReceiver);
-        unregisterReceiver(myBroadcastReceiver);
+        exitTest();
+        super.onDestroy();
+    }
+
+    private void startTest(){
+        if(!bTesting){
+            bTesting = true;
+            if(myBroadcastReceiver == null){
+                myBroadcastReceiver = new MyBroadcastReceiver(this);
+                IntentFilter filter = new IntentFilter();
+                filter.addAction("AsrStart");
+                filter.addAction("StartCall");
+                filter.addAction("AsrFinish");
+                filter.addAction("Test_Failed");
+                filter.addAction("StartNext");
+                filter.addAction("StartRepeat");
+                filter.addAction("NetWork_Disabled");
+                filter.addAction("NetWork_Enabled");
+                registerReceiver(myBroadcastReceiver, filter);
+            }
+            if(netWorkStateReceiver == null){
+                netWorkStateReceiver = new NetWorkStateReceiver();
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+                registerReceiver(netWorkStateReceiver, filter);
+            }
+            printLog("开始自动测试", true, true);
+            test.setText(getResources().getString(R.string.stop_auto_test));
+            auto_start();
+        }
+    }
+
+    private void exitTest(){
+        bTesting = false;
+        if(netWorkStateReceiver != null){
+            unregisterReceiver(netWorkStateReceiver);
+            netWorkStateReceiver = null;
+        }
+        if(myBroadcastReceiver != null){
+            unregisterReceiver(myBroadcastReceiver);
+            myBroadcastReceiver = null;
+        }
         if (asr != null) {
             asr.cancel();
+            asr = null;
         }
         if(countDownTimer!=null){
             countDownTimer.cancel();
+            countDownTimer = null;
         }
-        super.onDestroy();
+        printLog("已结束自动测试", true, true);
+        test.setText(getResources().getString(R.string.start_auto_test));
     }
 
 
@@ -146,7 +186,9 @@ public class ActivityAutoTest extends Activity {
                 new Handler().postDelayed(new Runnable(){
                     @Override
                     public void run() {
-                asr.start();
+                        if(asr != null){
+                            asr.start();
+                        }
                    }
                 }, 5000);
             } else if (intent.getAction().equals("StartCall")) {
