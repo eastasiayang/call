@@ -84,18 +84,18 @@ public class ActivityAutoTest extends Activity {
     @Override
     protected void onResume() {
         LogUtils.d(TAG, "onResume");
-        if(!bCalling){
-            startTest();
-        }
+        //if(!bCalling){
+         //   startTest();
+        //}
         super.onResume();
     }
 
     @Override
     protected void onPause() {
         LogUtils.d(TAG, "onPause");
-        if(!bCalling){
-            exitTest();
-        }
+        //if(!bCalling){
+            //exitTest();
+        //}
         super.onPause();
     }
 
