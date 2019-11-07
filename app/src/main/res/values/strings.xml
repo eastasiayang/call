@@ -16,8 +16,10 @@
     <string name="auto_call_no_phone_time">无法从服务器读到数据时下次读取时间(秒)</string>
     <string name="read_url">读数据网址</string>
     <string name="write_url">写数据网址</string>
+    <string name="callback_url">回拨电话网址</string>
     <string name="read_url_net">http://1.192.125.57/zx/mobile_read.aspx</string>
     <string name="write_url_net">http://1.192.125.57/zx/mobile_write.aspx</string>
+    <string name="callback_url_net">http://122.114.14.118:19998/sd/mobile_huibo.aspx</string>
     <string name="save">保存</string>
     <string name="exit">退出</string>
 </resources>

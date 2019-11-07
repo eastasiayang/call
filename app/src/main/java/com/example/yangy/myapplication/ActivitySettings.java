@@ -12,7 +12,7 @@ import com.yang.basic.SharedPreferencesHelper;
 
 public class ActivitySettings extends Activity {
     private static final String TAG = "ActivitySettings";
-    EditText hold_time, next_phone_time, next_get_info, read_url, write_url;
+    EditText hold_time, next_phone_time, next_get_info, read_url, write_url, callback_url;
     Button save, exit;
     private SharedPreferencesHelper sharedPreferencesHelper;
 
@@ -31,6 +31,7 @@ public class ActivitySettings extends Activity {
                 sharedPreferencesHelper.put("next_get_info", next_get_info.getText());
                 sharedPreferencesHelper.put("read_url", read_url.getText());
                 sharedPreferencesHelper.put("write_url", write_url.getText());
+                sharedPreferencesHelper.put("callback_url", callback_url.getText());
                 finish();
             }
         });
@@ -49,6 +50,7 @@ public class ActivitySettings extends Activity {
         next_get_info = findViewById(R.id.EditText_settings_next_get_info);
         read_url = findViewById(R.id.EditText_settings_read_url);
         write_url = findViewById(R.id.EditText_settings_write_url);
+        callback_url = findViewById(R.id.EditText_settings_callback_url);
         save = findViewById(R.id.Button_Settings_save);
         exit = findViewById(R.id.Button_Settings_exit);
         hold_time.setText(sharedPreferencesHelper.getSharedPreference("hold_time", "10").toString().trim());
@@ -56,5 +58,6 @@ public class ActivitySettings extends Activity {
         next_get_info.setText(sharedPreferencesHelper.getSharedPreference("next_get_info", "60").toString().trim());
         read_url.setText(sharedPreferencesHelper.getSharedPreference("read_url", "http://1.192.125.57/zx/mobile_read.aspx").toString().trim());
         write_url.setText(sharedPreferencesHelper.getSharedPreference("write_url", "http://1.192.125.57/zx/mobile_write.aspx").toString().trim());
+        callback_url.setText(sharedPreferencesHelper.getSharedPreference("callback_url", "http://122.114.14.118:19998/sd/mobile_huibo.aspx").toString().trim());
     }
 }

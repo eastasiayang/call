@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
 
     <!--
     uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />
@@ -59,12 +60,17 @@
             android:name=".ActivitySettings"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
 
-        <receiver android:name=".NetWorkStateReceiver"></receiver>
+        <receiver android:name=".NetWorkStateReceiver" />
         <receiver android:name=".BootReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".CallbackService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

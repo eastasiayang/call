@@ -4,9 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.widget.Toast;
-
+//import android.widget.Toast;
 import com.yang.basic.LogUtils;
 
 /**
@@ -14,79 +12,74 @@ import com.yang.basic.LogUtils;
  */
 public class PhoneCallReceiver extends BroadcastReceiver {
     private static final String TAG = "PhoneCallReceiver";
-    private int lastCallState = TelephonyManager.CALL_STATE_IDLE;
-    private boolean isIncoming = false;
-    private static String contactNum;
+    private static int lastCallState = TelephonyManager.CALL_STATE_IDLE;
     private static boolean isCalling = false;
-    Intent audioRecorderService;
     public PhoneCallReceiver() {
     }
     @Override
     public void onReceive(Context context, Intent intent) {
         //如果是去电
-        LogUtils.d(TAG, "intent.getAction() = " + intent.getAction());
-        if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)){
-            LogUtils.d(TAG, "ACTION_NEW_OUTGOING_CALL");
+        //LogUtils.d(TAG, "intent.getAction() = " + intent.getAction());
+        String contactNum = null;
+        if (Intent.ACTION_NEW_OUTGOING_CALL.equals(intent.getAction())){
             contactNum = intent.getExtras().getString(Intent.EXTRA_PHONE_NUMBER);
+            LogUtils.d(TAG, "ACTION_NEW_OUTGOING_CALL, contactNum = " + contactNum);
         }else
         {
             String state = intent.getExtras().getString(TelephonyManager.EXTRA_STATE);
             String phoneNumber = intent.getExtras().getString(TelephonyManager.EXTRA_INCOMING_NUMBER);
             LogUtils.d(TAG, "state = " + state + " phoneNumber = " + phoneNumber);
-            int stateChange = 0;
-            if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
-                //空闲状态
-                stateChange =TelephonyManager.CALL_STATE_IDLE;
-                if (isIncoming){
+            if(phoneNumber == null){
+                return;
+            }
+            if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)){//挂机状态
+                //如果是响铃状态，则现在为来电挂机
+                if (lastCallState == TelephonyManager.CALL_STATE_RINGING){
                     onIncomingCallEnded(context,phoneNumber);
-                }else {
-                    if(isCalling){
-                        onOutgoingCallEnded(context,phoneNumber);
-                    }
-                    isCalling = false;
+                    lastCallState = TelephonyManager.CALL_STATE_IDLE;
+                }else {//如果不是响铃状态，则现在是去电挂机
+                    onOutgoingCallEnded(context,phoneNumber);
                 }
-            }else if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){
-                //摘机状态
-                stateChange = TelephonyManager.CALL_STATE_OFFHOOK;
-                if (lastCallState != TelephonyManager.CALL_STATE_RINGING){
-                    //如果最近的状态不是来电响铃的话，意味着本次通话是去电
-                    isIncoming =false;
-                    if(!isCalling){
-                        isCalling = true;
-                        onOutgoingCallStarted(context,phoneNumber);
-                    }
-                }else {
-                    //否则本次通话是来电
-                    isIncoming = true;
+            }else if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)){//接听状态
+
+                if (lastCallState == TelephonyManager.CALL_STATE_RINGING){
                     onIncomingCallAnswered(context, phoneNumber);
+                }else{//如果不是响铃状态，则现在是去电
+                    onOutgoingCallStarted(context,phoneNumber);
                 }
             }else if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)){
                 //来电响铃状态
-                stateChange = TelephonyManager.CALL_STATE_RINGING;
-                lastCallState = stateChange;
-                onIncomingCallReceived(context,contactNum);
+                lastCallState = TelephonyManager.CALL_STATE_RINGING;
+                onIncomingCallReceived(context,phoneNumber);
             }
         }
     }
     protected void onIncomingCallStarted(Context context,String number){
         //Toast.makeText(context,"Incoming call is started",Toast.LENGTH_LONG).show();
-        LogUtils.d(TAG, "Incoming call is started");
-        //context.startService(new Intent(context,AudioRecorderService.class));
+        LogUtils.d(TAG, "Incoming call is started, phone number = " + number);
+        //Intent i = new Intent(context, CallbackService.class);
+        //i.putExtra("phone", number);
+        //context.startService(i);
     }
 
     protected void onIncomingCallEnded(Context context,String number){
         //Toast.makeText(context, "Incoming call is ended", Toast.LENGTH_LONG).show();
         LogUtils.d(TAG, "Incoming call is ended");
-        //context.startService(new Intent(context, AudioRecorderService.class));
+        context.stopService(new Intent(context, CallbackService.class));
     }
 
     protected void onIncomingCallReceived(Context context,String number){
         //Toast.makeText(context, "Incoming call is received", Toast.LENGTH_LONG).show();
-        LogUtils.d(TAG, "Incoming call is received");
+        LogUtils.d(TAG, "Incoming call is received, phone number = " + number);
+        if(number != null) {
+            Intent i = new Intent(context, CallbackService.class);
+            i.putExtra("phone", number);
+            context.startService(i);
+        }
     }
     protected void onIncomingCallAnswered(Context context, String number) {
         //Toast.makeText(context, "Incoming call is answered", Toast.LENGTH_LONG).show();
-        LogUtils.d(TAG, "Incoming call is answered");
+        LogUtils.d(TAG, "Incoming call is answered, number = " + number);
     }
 
     protected void onOutgoingCallStarted(Context context,String number){
@@ -99,10 +92,9 @@ public class PhoneCallReceiver extends BroadcastReceiver {
 
     protected void onOutgoingCallEnded(Context context,String number){
         //Toast.makeText(context, "Outgoing call is ended", Toast.LENGTH_LONG).show();
-        LogUtils.d(TAG, "Outgoing call is ended");
+        LogUtils.d(TAG, "Outgoing call is ended, number = " + number);
         Intent mIntent=new Intent("AsrStart");
         context.sendBroadcast(mIntent);
         context.stopService(new Intent(context, AudioRecorderService.class));
     }
-
 }
